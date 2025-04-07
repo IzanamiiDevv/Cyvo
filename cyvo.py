@@ -35,7 +35,7 @@ def MainLoop(ip: str) -> None:
 try:
     ip: str = input("Enter the target IP: ")
     print(f"Connecting to {ip}")
-    response = requests.get(f"http://{ip}:8080", timeout=5)
+    response = requests.get(f"http://{ip}:6789", timeout=5)
     if response.status_code == 200:
         print("Connection Succeed")
         MainLoop(ip)
