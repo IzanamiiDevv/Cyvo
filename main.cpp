@@ -12,17 +12,22 @@
 
 std::string run_command(const std::string& command);
 bool is_command_available(const std::string& command);
-void install_npm();
-void install_cloudflared();
 void run_cloudflared_tunnel();
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     if (!is_command_available("npm")) {
-        install_npm();
+        std::string installer_url = "https://nodejs.org/dist/v20.12.2/node-v20.12.2-x64.msi";
+        std::string installer_file = "node_installer.msi";
+
+        run_command("powershell -Command \"Invoke-WebRequest -Uri '" + installer_url + "' -OutFile '" + installer_file + "'\"");
+        run_command("msiexec /i node_installer.msi /quiet /norestart");
+        DeleteFileA(installer_file.c_str());
     }
 
     if (!is_command_available("cloudflared")) {
-        install_cloudflared();
+        std::string url = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe";
+        std::string path = "cloudflared.exe";
+        run_command("powershell -Command \"Invoke-WebRequest -Uri '" + url + "' -OutFile '" + path + "'\"");
     }
 
     std::thread tunnel_thread(run_cloudflared_tunnel);
@@ -67,20 +72,6 @@ bool is_command_available(const std::string& command) {
     return system(check.c_str()) == 0;
 }
 
-void install_npm() {
-    std::string installer_url = "https://nodejs.org/dist/v20.12.2/node-v20.12.2-x64.msi";
-    std::string installer_file = "node_installer.msi";
-
-    run_command("powershell -Command \"Invoke-WebRequest -Uri '" + installer_url + "' -OutFile '" + installer_file + "'\"");
-    run_command("msiexec /i node_installer.msi /quiet /norestart");
-    DeleteFileA(installer_file.c_str());
-}
-
-void install_cloudflared() {
-    std::string url = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe";
-    std::string path = "cloudflared.exe";
-    run_command("powershell -Command \"Invoke-WebRequest -Uri '" + url + "' -OutFile '" + path + "'\"");
-}
 
 
 void run_cloudflared_tunnel() {
