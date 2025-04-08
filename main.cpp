@@ -140,7 +140,4 @@ void run_cloudflared_tunnel() {
     CloseHandle(hPipeRead);
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
-
-    std::ofstream log("log.txt");
-    log << output;
 }
