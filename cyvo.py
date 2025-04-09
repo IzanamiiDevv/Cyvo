@@ -1,6 +1,5 @@
 import requests
 
-
 # Intro
 print("""
  ██████╗██╗   ██╗██╗   ██╗ ██████╗ 
@@ -10,44 +9,42 @@ print("""
 ╚██████╗   ██║    ╚████╔╝ ╚██████╔╝
  ╚═════╝   ╚═╝     ╚═══╝   ╚═════╝ 
 
-                                 
 Creator: IzanamiiDevv.
 """)
 
-def ControllLoop(ip: str) -> None:
+def ControlLoop(ip: str) -> None:
     while True:
-        prompt = input(f"""
-┌──({ip}㉿Cyvo)-[~]
-└─$ """)
-        
-        if prompt.strip().lower() == "exit":
-            break
-
         try:
-            response = requests.post(f"http://{ip}", data=prompt, headers={"Content-Type": "text/plain"})
-            print("Response:", response.text)
+            command = input(f"\n┌──({ip}㉿Cyvo)-[~]\n└─$ ").strip()
+
+            if command.lower() == "exit":
+                print("Exiting control loop.")
+                break
+
+            response = requests.post(f"http://{ip}/cmd", data=command.encode(), headers={"Content-Type": "text/plain"}, timeout=5)
+            print("Response:\n ", response.text)
+        except KeyboardInterrupt:
+            print("\nKeyboardInterrupt received. Exiting.")
+            break
         except Exception as e:
             print("Failed to send POST request:", e)
 
-def MainLoop(ip: str) -> None:
-    while True:
-        prompt: str = input("[+]: ")
+def connect_and_run():
+    try:
+        ip = input("Enter the target IP: ").strip()
+        print(f"Connecting to {ip}...")
 
-        if prompt.strip().lower() == "exit":
-            break
+        response = requests.get(f"http://{ip}", timeout=5)
+        if response.status_code == 200:
+            print("Connection succeeded.")
+            ControlLoop(ip)
+        else:
+            print(f"Connection failed with status code: {response.status_code}")
+    except requests.RequestException as e:
+        print("Execution failed:", e)
+    except KeyboardInterrupt:
+        print("\nProcess cancelled by user.")
 
-
-
-try:
-    ip: str = input("Enter the target IP: ")
-    print(f"Connecting to {ip}")
-    response = requests.get(f"http://{ip}", timeout=5)
-    if response.status_code == 200:
-        print("Connection Succeed")
-        ControllLoop(ip)
-    else:
-        print(f"Connection failed with status code: {response.status_code}")
-except requests.RequestException:
-    print("Execution Failed")
-except KeyboardInterrupt:
-    print("\nProcess Cancelled")
+# Entry point
+if __name__ == "__main__":
+    connect_and_run()
