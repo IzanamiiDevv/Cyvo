@@ -6,7 +6,11 @@
 #include <string>
 #include <thread>
 #include <fstream>
+#include <filesystem>
+#include <sstream>
+#include <vector>
 #include "incl/httplib.h"
+
 
 #define PORT 8980
 
@@ -32,8 +36,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     std::thread tunnel_thread(run_cloudflared_tunnel);
     tunnel_thread.detach();
-
-
+    
     httplib::Server svr;
 
     svr.Get("/", [](const httplib::Request& req, httplib::Response& res) {
